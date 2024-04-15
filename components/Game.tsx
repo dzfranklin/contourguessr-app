@@ -34,26 +34,12 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
       setView(view);
     });
   }, [regionId, picNum]);
-  const target = view?.target;
 
   const [guess, setGuess] = useState<[number, number] | null>(null);
 
-  const [result, setResult] = useState<GameResult | null>(null);
+  const [results, pushResult] = useResults();
 
-  const newPicture = () => {
-    setPicNum((n) => n + 1);
-    setGuess(null);
-    setResult(null);
-  };
-
-  let status: GameStatus;
-  if (result) {
-    status = "done";
-  } else if (guess) {
-    status = "guessing";
-  } else {
-    status = "start";
-  }
+  const [status, setStatus] = useState<GameStatus>("start");
 
   return (
     <main className="game">
@@ -63,18 +49,22 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
         regions={regions}
         status={status}
         onGuess={() => {
-          if (!guess || !target) return;
-          const result = computeResult(target, guess);
-          setResult(result);
+          if (!guess || !picture) return;
+          pushResult(computeResult(picture, guess));
+          setStatus("done");
         }}
-        onNew={newPicture}
+        onNew={() => {
+          setPicNum((n) => n + 1);
+          setGuess(null);
+          setStatus("start");
+        }}
       />
 
       <div className="col-span-full row-start-2">
-        {result && (
+        {status === "done" && (
           <>
             <div className="text-2xl font-semibold text-center">
-              {result.distance.toFixed(0)} meters away
+              {results.at(-1)!.distance.toFixed(0)} meters away
             </div>
             <button className="mx-auto"></button>
           </>
@@ -83,7 +73,10 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
 
       <MapComponent
         guess={guess}
-        setGuess={setGuess}
+        setGuess={(guess) => {
+          setGuess(guess);
+          setStatus("guessing");
+        }}
         picture={picture}
         region={region}
         view={view}
@@ -93,4 +86,17 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
       <PictureComponent value={picture} />
     </main>
   );
+}
+
+function useResults(): [GameResult[], (_: GameResult) => void] {
+  const [value, setValue] = useState<GameResult[]>([]);
+  const addResult = (result: GameResult) => {
+    setValue((value) => [...value, result]);
+    localStorage.setItem("results", JSON.stringify([...value, result]));
+  };
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem("results") || "[]");
+    setValue(stored);
+  }, []);
+  return [value, addResult];
 }

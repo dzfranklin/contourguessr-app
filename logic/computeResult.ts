@@ -1,6 +1,8 @@
+import { Picture } from "@/api/picture";
 import { getDistance } from "ol/sphere";
 
 export interface GameResult {
+  picture: string;
   distance: number;
 }
 
@@ -9,12 +11,12 @@ export interface GameResult {
  * Returns the distance in meters.
  */
 export default function computeResult(
-  target: Readonly<[number, number]>,
+  picture: Picture,
   guess: Readonly<[number, number]>
 ): GameResult {
-  const distance = getDistance(
-    target as unknown as any[],
-    guess as unknown as any[]
+  const target = [parseFloat(picture.longitude), parseFloat(picture.latitude)];
+  const distance = Math.round(
+    getDistance(target as unknown as any[], guess as unknown as any[])
   );
-  return { distance };
+  return { picture: picture.id, distance };
 }

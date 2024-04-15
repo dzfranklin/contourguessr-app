@@ -26,7 +26,6 @@ import { Vector as VectorLayer } from "ol/layer";
 import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
 import { GameView } from "@/logic/computeView";
-import Fill from "ol/style/Fill";
 
 // eslint-disable-next-line react-hooks/rules-of-hooks -- not a hook
 useGeographic();
@@ -64,6 +63,11 @@ export default function MapComponent({
   useEffect(() => {
     statusRef.current = status;
   }, [status]);
+
+  const setGuessRef = useRef(setGuess);
+  useEffect(() => {
+    setGuessRef.current = setGuess;
+  }, [setGuess]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -139,13 +143,13 @@ export default function MapComponent({
       if (!(status === "start" || status === "guessing")) return;
       if (c[0] < view.guessableZone[0] || c[0] > view.guessableZone[2]) return;
       if (c[1] < view.guessableZone[1] || c[1] > view.guessableZone[3]) return;
-      setGuess([c[0]!, c[1]!]);
+      setGuessRef.current([c[0]!, c[1]!]);
     });
 
     return () => {
       map.dispose();
     };
-  }, [setGuess, region, wmtsOptions, view]);
+  }, [region, wmtsOptions, view]);
 
   useEffect(() => {
     const map = mapRef.current;
