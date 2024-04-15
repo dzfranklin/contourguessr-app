@@ -9,6 +9,7 @@ import MapComponent from "./Map";
 import "./Game.css";
 import computeResult, { GameResult } from "@/logic/computeResult";
 import { GameStatus } from "@/logic/GameStatus";
+import { GameView, computeView } from "@/logic/computeView";
 
 export default function GameComponent({ regions }: { regions: Region[] }) {
   const [picNum, setPicNum] = useState(0);
@@ -18,16 +19,24 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
   if (!region) throw new Error("Invalid region");
 
   const [picture, setPicture] = useState<Picture | undefined>(undefined);
+  const [view, setView] = useState<GameView | undefined>(undefined);
   useEffect(() => {
     setPicture(undefined);
-    fetchRandomPicture(regionId).then(setPicture);
+    setView(undefined);
+    fetchRandomPicture(regionId).then((picture) => {
+      const target: [number, number] = [
+        parseFloat(picture.longitude),
+        parseFloat(picture.latitude),
+      ];
+      const view = computeView(target);
+
+      setPicture(picture);
+      setView(view);
+    });
   }, [regionId, picNum]);
+  const target = view?.target;
 
   const [guess, setGuess] = useState<[number, number] | null>(null);
-
-  const target = picture
-    ? ([parseFloat(picture.longitude), parseFloat(picture.latitude)] as const)
-    : null;
 
   const [result, setResult] = useState<GameResult | null>(null);
 
@@ -77,6 +86,7 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
         setGuess={setGuess}
         picture={picture}
         region={region}
+        view={view}
         status={status}
       />
 

@@ -20,11 +20,13 @@ import OSBranding from "@/os_brand";
 import "./Map.css";
 import { Feature, MapBrowserEvent, Overlay } from "ol";
 import { GameStatus } from "@/logic/GameStatus";
-import { LineString } from "ol/geom";
+import { LineString, Point } from "ol/geom";
 import { Vector as VectorSource } from "ol/source";
 import { Vector as VectorLayer } from "ol/layer";
 import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
+import { GameView } from "@/logic/computeView";
+import Fill from "ol/style/Fill";
 
 // eslint-disable-next-line react-hooks/rules-of-hooks -- not a hook
 useGeographic();
@@ -38,12 +40,14 @@ olProj4.register(proj4);
 export default function MapComponent({
   picture,
   region,
+  view,
   guess,
   setGuess,
   status,
 }: {
   picture?: Picture;
   region: Region;
+  view?: GameView;
   guess: [number, number] | null;
   setGuess: (_: [number, number]) => void;
   status: GameStatus;
@@ -63,12 +67,7 @@ export default function MapComponent({
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!picture || !container || !wmtsOptions) return;
-
-    const actual = [
-      parseFloat(picture.longitude),
-      parseFloat(picture.latitude),
-    ];
+    if (!view || !container || !wmtsOptions) return;
 
     let attributions: string[];
     if (typeof wmtsOptions.attributions === "string") {
@@ -85,7 +84,7 @@ export default function MapComponent({
     let map = new Map({
       target: container,
       view: new View({
-        center: actual,
+        center: view.center,
         constrainResolution: true,
         resolutions: region.tiles.resolutions,
         resolution: region.tiles.defaultResolution,
@@ -96,7 +95,6 @@ export default function MapComponent({
             ...wmtsOptions,
             attributions,
           }),
-          // extent: region.bbox,
         }),
       ],
       controls: [
@@ -113,19 +111,41 @@ export default function MapComponent({
     });
     mapRef.current = map;
 
+    const src = new VectorSource({});
+    src.addFeature(
+      new Feature({
+        geometry: new LineString([
+          [view.guessableZone[0], view.guessableZone[1]],
+          [view.guessableZone[0], view.guessableZone[3]],
+          [view.guessableZone[2], view.guessableZone[3]],
+          [view.guessableZone[2], view.guessableZone[1]],
+          [view.guessableZone[0], view.guessableZone[1]],
+        ]),
+      })
+    );
+    const layer = new VectorLayer({
+      source: src,
+      style: {
+        "stroke-color": "rgba(0, 0, 0, 1)",
+        "stroke-width": 3,
+      },
+    });
+    map.addLayer(layer);
+
     map.addEventListener("click", (event) => {
       if (!(event instanceof MapBrowserEvent)) return;
       const status = statusRef.current;
-      const coordinate = event.coordinate;
-      if (status === "start" || status === "guessing") {
-        setGuess([coordinate[0]!, coordinate[1]!]);
-      }
+      const c = event.coordinate;
+      if (!(status === "start" || status === "guessing")) return;
+      if (c[0] < view.guessableZone[0] || c[0] > view.guessableZone[2]) return;
+      if (c[1] < view.guessableZone[1] || c[1] > view.guessableZone[3]) return;
+      setGuess([c[0]!, c[1]!]);
     });
 
     return () => {
       map.dispose();
     };
-  }, [setGuess, picture, region, wmtsOptions]);
+  }, [setGuess, region, wmtsOptions, view]);
 
   useEffect(() => {
     const map = mapRef.current;
