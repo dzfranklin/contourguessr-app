@@ -18,6 +18,13 @@ import ScaleLine from "ol/control/ScaleLine";
 import "@/os_brand.css";
 import OSBranding from "@/os_brand";
 import "./Map.css";
+import { Feature, MapBrowserEvent, Overlay } from "ol";
+import { GameStatus } from "@/logic/GameStatus";
+import { LineString } from "ol/geom";
+import { Vector as VectorSource } from "ol/source";
+import { Vector as VectorLayer } from "ol/layer";
+import Stroke from "ol/style/Stroke";
+import Style from "ol/style/Style";
 
 // eslint-disable-next-line react-hooks/rules-of-hooks -- not a hook
 useGeographic();
@@ -29,18 +36,30 @@ proj4.defs(
 olProj4.register(proj4);
 
 export default function MapComponent({
-  picture: picture,
-  region: region,
+  picture,
+  region,
+  guess,
+  setGuess,
+  status,
 }: {
   picture?: Picture;
   region: Region;
+  guess: [number, number] | null;
+  setGuess: (_: [number, number]) => void;
+  status: GameStatus;
 }) {
   const [wmtsOptions, setWMTSOptions] = useState<WMTSOptions | null>(null);
   useEffect(() => {
     fetchWMTS(region.tiles).then((options) => setWMTSOptions(options));
   }, [region]);
 
+  const mapRef = useRef<Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const statusRef = useRef(status);
+  useEffect(() => {
+    statusRef.current = status;
+  }, [status]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -92,11 +111,95 @@ export default function MapComponent({
         }),
       ],
     });
+    mapRef.current = map;
+
+    map.addEventListener("click", (event) => {
+      if (!(event instanceof MapBrowserEvent)) return;
+      const status = statusRef.current;
+      const coordinate = event.coordinate;
+      if (status === "start" || status === "guessing") {
+        setGuess([coordinate[0]!, coordinate[1]!]);
+      }
+    });
 
     return () => {
       map.dispose();
     };
-  }, [picture, region, wmtsOptions]);
+  }, [setGuess, picture, region, wmtsOptions]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    let marker: Overlay | null = null;
+    if (guess) {
+      const elem = document.createElement("div");
+      elem.className = "map-guess-marker";
+
+      marker = new Overlay({
+        position: guess,
+        positioning: "center-center",
+        element: elem,
+        stopEvent: false,
+      });
+
+      map.addOverlay(marker);
+    }
+
+    return () => {
+      if (marker) {
+        map.removeOverlay(marker);
+      }
+    };
+  }, [guess]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !picture || !guess) return;
+
+    const target: [number, number] = [
+      parseFloat(picture.longitude),
+      parseFloat(picture.latitude),
+    ];
+
+    let marker: Overlay | null = null;
+    let layer: VectorLayer<VectorSource> | null = null;
+    if (status === "done") {
+      const elem = document.createElement("div");
+      elem.className = "map-target-marker";
+
+      marker = new Overlay({
+        position: target,
+        positioning: "center-center",
+        element: elem,
+        stopEvent: false,
+      });
+
+      const src = new VectorSource({});
+      src.addFeature(
+        new Feature({
+          geometry: new LineString([target, guess]),
+        })
+      );
+      layer = new VectorLayer({
+        source: src,
+        style: new Style({
+          stroke: new Stroke({
+            color: "rgba(80, 72, 229, 0.5)",
+            width: 5,
+          }),
+        }),
+      });
+
+      map.addOverlay(marker);
+      map.addLayer(layer);
+    }
+
+    return () => {
+      if (marker) map.removeOverlay(marker);
+      if (layer) map.removeLayer(layer);
+    };
+  }, [status, picture, guess]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -114,7 +217,7 @@ export default function MapComponent({
   }, [region.tiles.osBranding]);
 
   return (
-    <div className="row-span-full row-start-2 col-span-full">
+    <div className="row-span-full row-start-3 col-span-full">
       <div ref={containerRef} className="w-full h-full relative"></div>
     </div>
   );

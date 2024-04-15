@@ -1,18 +1,14 @@
 import { Picture, PictureSize } from "@/api/picture";
 import classNames from "@/classNames";
 
-export default function PictureComponent({
-  value: value,
-}: {
-  value?: Picture;
-}) {
+export default function PictureComponent({ value }: { value?: Picture }) {
   let pictureSize: PictureSize | undefined;
   for (const size of value?.sizes || []) {
     pictureSize = size;
     if (size.height >= 400 || size.width >= 400) break;
   }
   return (
-    <div className="bg-white p-4 mt-2 mr-2 row-start-2 col-span-full col-start-2 relative rounded-md shadow-md w-fit">
+    <div className="relative h-fit w-fit p-4 mt-2 mr-2 row-start-3 col-span-full col-start-2 bg-white rounded-md shadow-md">
       {value && pictureSize ? (
         <img
           src={pictureSize?.source}

@@ -3,3 +3,18 @@
   right: unset;
   top: 4em;
 }
+
+.map-guess-marker,
+.map-target-marker {
+  width: 40px;
+  height: 40px;
+  background-size: contain;
+}
+
+.map-guess-marker {
+  background-image: url("./guessMarker.svg");
+}
+
+.map-target-marker {
+  background-image: url("./targetMarker.svg");
+}
