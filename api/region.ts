@@ -11,6 +11,8 @@ export interface Region {
     matrixSet: string;
     resolutions: number[];
     defaultResolution: number;
+    osBranding?: boolean;
+    extraAttributions?: string[];
   };
 }
 

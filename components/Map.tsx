@@ -15,6 +15,8 @@ import Zoom from "ol/control/Zoom";
 import Rotate from "ol/control/Rotate";
 import Attribution from "ol/control/Attribution";
 import ScaleLine from "ol/control/ScaleLine";
+import "@/os_brand.css";
+import OSBranding from "@/os_brand";
 
 // eslint-disable-next-line react-hooks/rules-of-hooks -- not a hook
 useGeographic();
@@ -48,6 +50,18 @@ export default function MapComponent({
       parseFloat(picture.latitude),
     ];
 
+    let attributions: string[];
+    if (typeof wmtsOptions.attributions === "string") {
+      attributions = [wmtsOptions.attributions];
+    } else if (Array.isArray(wmtsOptions.attributions)) {
+      attributions = wmtsOptions.attributions;
+    } else {
+      attributions = [];
+    }
+    if (region.tiles.extraAttributions) {
+      attributions = attributions.concat(region.tiles.extraAttributions);
+    }
+
     let map = new Map({
       target: container,
       view: new View({
@@ -58,11 +72,24 @@ export default function MapComponent({
       }),
       layers: [
         new TileLayer({
-          source: new WMTS(wmtsOptions),
+          source: new WMTS({
+            ...wmtsOptions,
+            attributions,
+          }),
           // extent: region.bbox,
         }),
       ],
-      controls: [new Zoom(), new Rotate(), new Attribution(), new ScaleLine()],
+      controls: [
+        new Zoom(),
+        new Rotate(),
+        new Attribution({
+          collapsed: false,
+          collapsible: false,
+        }),
+        new ScaleLine({
+          bar: true,
+        }),
+      ],
     });
 
     return () => {
@@ -70,9 +97,24 @@ export default function MapComponent({
     };
   }, [picture, region, wmtsOptions]);
 
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    if (region.tiles.osBranding) {
+      OSBranding.init({ elem: container });
+    }
+
+    return () => {
+      document
+        .querySelectorAll(".os-api-branding")
+        .forEach((el) => el.remove());
+    };
+  }, [region.tiles.osBranding]);
+
   return (
     <div>
-      <div ref={containerRef} className="w-full h-[50vh]"></div>
+      <div ref={containerRef} className="w-full h-[50vh] relative"></div>
 
       <div className="text-sm text-gray-500">
         Tip: Hold down Alt+Shift and drag to rotate

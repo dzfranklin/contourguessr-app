@@ -6,7 +6,7 @@ import { Region } from "@/api/region";
 import { Picture, PictureSize, fetchRandomPicture } from "@/api/picture";
 import PictureComponent from "./Picture";
 import ControlsComponent from "./Controls";
-import MapComponent from "./MapComponent";
+import MapComponent from "./Map";
 
 export default function GameComponent({
   regions: regions,
