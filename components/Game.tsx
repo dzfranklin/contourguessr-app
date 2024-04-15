@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import RegionSelectorComponent from "./RegionSelector";
 import { Region } from "@/api/region";
-import { Picture, PictureSize, fetchRandomPicture } from "@/api/picture";
+import { Picture, fetchRandomPicture } from "@/api/picture";
 import PictureComponent from "./Picture";
 import ControlsComponent from "./Controls";
 import MapComponent from "./Map";
+import "./Game.css";
 
 export default function GameComponent({
   regions: regions,
@@ -26,7 +26,7 @@ export default function GameComponent({
   }, [regionId, picNum]);
 
   return (
-    <main className="m-4">
+    <main className="game">
       <ControlsComponent
         region={regionId}
         setRegion={setRegionId}
@@ -34,9 +34,9 @@ export default function GameComponent({
         newPicture={() => setPicNum((p) => p + 1)}
       />
 
-      <PictureComponent value={picture} />
-
       <MapComponent picture={picture} region={region} />
+
+      <PictureComponent value={picture} />
     </main>
   );
 }

@@ -13,16 +13,22 @@ export default function ControlsComponent({
   newPicture: () => void;
 }) {
   return (
-    <div className="flex gap-3 items-center mb-4">
-      <div className="mr-3">
-        <RegionSelectorComponent
-          selected={region}
-          setSelected={setRegion}
-          regions={regions}
-        />
+    <div className="col-span-full flex flex-col mx-4 mt-4 mb-2">
+      <div className="flex gap-3 items-center mb-1">
+        <div className="mr-3">
+          <RegionSelectorComponent
+            selected={region}
+            setSelected={setRegion}
+            regions={regions}
+          />
+        </div>
+
+        <ControlButton onClick={() => newPicture()}>New picture</ControlButton>
       </div>
 
-      <ControlButton onClick={() => newPicture()}>New picture</ControlButton>
+      <div className="text-sm text-gray-500">
+        Tip: Hold down Alt+Shift and drag to rotate
+      </div>
     </div>
   );
 }

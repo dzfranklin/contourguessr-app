@@ -17,6 +17,7 @@ import Attribution from "ol/control/Attribution";
 import ScaleLine from "ol/control/ScaleLine";
 import "@/os_brand.css";
 import OSBranding from "@/os_brand";
+import "./Map.css";
 
 // eslint-disable-next-line react-hooks/rules-of-hooks -- not a hook
 useGeographic();
@@ -113,12 +114,8 @@ export default function MapComponent({
   }, [region.tiles.osBranding]);
 
   return (
-    <div>
-      <div ref={containerRef} className="w-full h-[50vh] relative"></div>
-
-      <div className="text-sm text-gray-500">
-        Tip: Hold down Alt+Shift and drag to rotate
-      </div>
+    <div className="row-span-full row-start-2 col-span-full">
+      <div ref={containerRef} className="w-full h-full relative"></div>
     </div>
   );
 }

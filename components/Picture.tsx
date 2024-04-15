@@ -1,4 +1,5 @@
 import { Picture, PictureSize } from "@/api/picture";
+import classNames from "@/classNames";
 
 export default function PictureComponent({
   value: value,
@@ -8,24 +9,27 @@ export default function PictureComponent({
   let pictureSize: PictureSize | undefined;
   for (const size of value?.sizes || []) {
     pictureSize = size;
-    if (size.width >= 1024) break;
+    if (size.height >= 400 || size.width >= 400) break;
   }
   return (
-    <div className="p-4 rounded-md shadow-md w-fit">
-      {value ? (
+    <div className="bg-white p-4 mt-2 mr-2 row-start-2 col-span-full col-start-2 relative rounded-md shadow-md w-fit">
+      {value && pictureSize ? (
         <img
           src={pictureSize?.source}
           width={pictureSize?.width}
           height={pictureSize?.height}
-          className="max-w-[1024px] max-h-[70vh] w-full rounded-sm"
+          className={classNames(
+            "rounded-sm max-w-[unset] max-h-[unset",
+            pictureSize.width > pictureSize.height ? "w-[400px]" : "h-[400px]"
+          )}
           alt=""
         />
       ) : (
-        <div className="w-[1024px] max-w-full h-[682px] rounded-sm bg-gray-100"></div>
+        <div className="h-[400px] w-[400px] rounded-sm bg-gray-100"></div>
       )}
 
       {value && (
-        <div className="flex justify-between mt-2 text-gray-600">
+        <div className="flex justify-between gap-4 mt-2 text-gray-600">
           <div className="flex gap-2 items-center">
             <img src={value?.ownerIcon} alt="" className="h-6 w-6 rounded-sm" />
             <span className="text-sm">{value?.ownerUsername}</span>
@@ -34,7 +38,6 @@ export default function PictureComponent({
             <a className="underline text-blue-800" href={value?.url}>
               Visit image source
             </a>
-            <span className="text-gray-500">{value?.dateTaken}</span>
           </div>
         </div>
       )}
