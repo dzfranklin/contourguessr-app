@@ -9,6 +9,8 @@ export interface Region {
     capabilities: string;
     layer: string;
     matrixSet: string;
+    resolutions: number[];
+    defaultResolution: number;
   };
 }
 
