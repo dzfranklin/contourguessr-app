@@ -129,5 +129,10 @@ function StatChartComponent({ results }: { results: GameResult[] }) {
     []
   );
 
+  if (results.length === 0) {
+    // The charts library throws various errors if we try to render an empty
+    return null;
+  }
+
   return <Chart options={{ primaryAxis, secondaryAxes, data }} />;
 }
