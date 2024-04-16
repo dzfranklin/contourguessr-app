@@ -26,6 +26,7 @@ import { Vector as VectorLayer } from "ol/layer";
 import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
 import { GameView } from "@/logic/computeView";
+import { FlatStyleLike } from "ol/style/flat";
 
 // eslint-disable-next-line react-hooks/rules-of-hooks -- not a hook
 useGeographic();
@@ -43,6 +44,7 @@ export default function MapComponent({
   guess,
   setGuess,
   status,
+  cheatMode,
 }: {
   picture?: Picture;
   region: Region;
@@ -50,6 +52,7 @@ export default function MapComponent({
   guess: [number, number] | null;
   setGuess: (_: [number, number]) => void;
   status: GameStatus;
+  cheatMode: boolean;
 }) {
   const [wmtsOptions, setWMTSOptions] = useState<WMTSOptions | null>(null);
   useEffect(() => {
@@ -127,24 +130,31 @@ export default function MapComponent({
         ]),
       })
     );
-    src.addFeature(
-      new Feature({
-        geometry: new Point(view.target),
-        // geometry: new Point([view.guessableZone[0], view.guessableZone[1]]),
-        // geometry: new Point([view.guessableZone[2], view.guessableZone[3]]),
-      })
-    );
-    const layer = new VectorLayer({
-      source: src,
-      style: {
-        "stroke-color": "rgba(0, 0, 0, 1)",
-        "stroke-width": 3,
 
+    let style: FlatStyleLike = {
+      "stroke-color": "rgba(0, 0, 0, 1)",
+      "stroke-width": 3,
+    };
+
+    if (cheatMode) {
+      src.addFeature(
+        new Feature({
+          geometry: new Point(view.target),
+        })
+      );
+      style = {
+        ...style,
         "circle-radius": 5,
         "circle-fill-color": "red",
-      },
-    });
-    map.addLayer(layer);
+      };
+    }
+
+    map.addLayer(
+      new VectorLayer({
+        source: src,
+        style,
+      })
+    );
 
     map.addEventListener("click", (event) => {
       if (!(event instanceof MapBrowserEvent)) return;
@@ -159,7 +169,7 @@ export default function MapComponent({
     return () => {
       map.dispose();
     };
-  }, [region, wmtsOptions, view]);
+  }, [region, wmtsOptions, view, cheatMode]);
 
   useEffect(() => {
     const map = mapRef.current;

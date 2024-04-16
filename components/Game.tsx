@@ -14,7 +14,8 @@ import { useSearchParams } from "next/navigation";
 
 export default function GameComponent({ regions }: { regions: Region[] }) {
   const searchParams = useSearchParams();
-  const force = searchParams.get("force");
+  const force = searchParams.get("_force");
+  const cheatMode = searchParams.get("_cheat") !== null;
 
   const [picNum, setPicNum] = useState(0);
 
@@ -97,6 +98,7 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
         region={region}
         view={view}
         status={status}
+        cheatMode={cheatMode}
       />
 
       <PictureComponent value={picture} />
