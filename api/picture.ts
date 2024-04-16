@@ -5,6 +5,7 @@ export interface Picture {
   sizes: PictureSize[];
   ownerUsername: string;
   ownerIcon: string;
+  ownerWebpage: string;
   title: string;
   description: string;
   dateTaken: string;
