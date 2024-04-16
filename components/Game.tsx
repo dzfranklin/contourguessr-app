@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Region } from "@/api/region";
-import { Picture, fetchRandomPicture } from "@/api/picture";
+import { Picture, fetchPicture, fetchRandomPicture } from "@/api/picture";
 import PictureComponent from "./Picture";
 import ControlsComponent from "./Controls";
 import MapComponent from "./Map";
@@ -10,11 +10,18 @@ import "./Game.css";
 import computeResult, { GameResult } from "@/logic/computeResult";
 import { GameStatus } from "@/logic/GameStatus";
 import { GameView, computeView } from "@/logic/computeView";
+import { useSearchParams } from "next/navigation";
 
 export default function GameComponent({ regions }: { regions: Region[] }) {
+  const searchParams = useSearchParams();
+  const force = searchParams.get("force");
+
   const [picNum, setPicNum] = useState(0);
 
-  const [regionId, setRegionId] = useState(regions[0]!.id);
+  let [regionId, setRegionId] = useState(regions[0]!.id);
+  if (force) {
+    regionId = force.split(",")[0];
+  }
   const region = regions.find((r) => r.id === regionId);
   if (!region) throw new Error("Invalid region");
 
@@ -23,12 +30,20 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
   useEffect(() => {
     setPicture(undefined);
     setView(undefined);
-    fetchRandomPicture(regionId).then((picture) => {
+
+    const assign = (picture: Picture) => {
       const view = computeView(picture);
       setPicture(picture);
       setView(view);
-    });
-  }, [regionId, picNum]);
+    };
+
+    if (force) {
+      const [region, pictureId] = force.split(",");
+      fetchPicture(region, pictureId).then(assign);
+    } else {
+      fetchRandomPicture(regionId).then(assign);
+    }
+  }, [regionId, picNum, force]);
 
   const [guess, setGuess] = useState<[number, number] | null>(null);
 

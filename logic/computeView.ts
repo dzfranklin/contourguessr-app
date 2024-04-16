@@ -1,5 +1,11 @@
 import { Picture } from "@/api/picture";
 import { Point } from "ol/geom";
+import { getDistance } from "ol/sphere";
+import destination from "@turf/destination";
+import midpoint from "@turf/midpoint";
+import { point } from "@turf/helpers";
+
+// TODO: Debug these calculations
 
 /** All in EPSG:4326 */
 export interface GameView {
@@ -8,13 +14,13 @@ export interface GameView {
   target: [number, number];
 }
 
-// The maximum distance in meters the center of the guessable zone can be from
-// the target. This is around 3 miles, or a little more than an hour of walking
-const d_max = 5_000;
+// The maximum distance in km the center of the guessable zone can be from
+// the target.
+const d = 3.0;
 
 // The padding around the guessable zone, or the minimum distance target to the
 // edge of the guessable zone.
-// const p = 250;
+// const p = 0.5;
 const p = 0;
 
 /*** Compoutes a random view for a given target.
@@ -27,37 +33,29 @@ export function computeView(picture: Picture): GameView {
     parseFloat(picture.latitude),
   ];
 
-  const t = new Point(target);
-  // Transform into a crs with a unit of measurement in meters. This works as
-  // long as d_max is reasonably small and target isn't near the poles.
-  t.transform("EPSG:4326", "EPSG:3857");
+  const x = picture.rx * d + p;
+  const y = picture.ry * d + p;
 
-  const x = picture.rx * d_max;
-  const y = picture.ry * d_max;
+  const minP = destination(destination(point(target), x, 270), y, 180);
+  const maxP = destination(
+    destination(point(target), d + 2 * p, 0),
+    d + 2 * p,
+    90
+  );
+  const centerP = midpoint(minP, maxP);
 
-  const min = t.clone();
-  min.translate(-x - p, -(d_max - y) - p);
+  const min = minP.geometry.coordinates as [number, number];
+  const max = maxP.geometry.coordinates as [number, number];
+  const center = centerP.geometry.coordinates as [number, number];
 
-  const max = t.clone();
-  max.translate(d_max - x + p, y + p);
-
-  const center = new Point([
-    (max.getCoordinates()[0] + min.getCoordinates()[0]) / 2,
-    (max.getCoordinates()[1] + min.getCoordinates()[1]) / 2,
-  ]);
-
-  center.transform("EPSG:3857", "EPSG:4326");
-  min.transform("EPSG:3857", "EPSG:4326");
-  max.transform("EPSG:3857", "EPSG:4326");
+  console.log(
+    getDistance([min[0], max[1]], [max[0], max[1]]) / 1000,
+    getDistance([min[0], max[1]], [min[0], min[1]]) / 1000
+  );
 
   return {
-    guessableZone: [
-      min.getCoordinates()[0],
-      min.getCoordinates()[1],
-      max.getCoordinates()[0],
-      max.getCoordinates()[1],
-    ],
-    center: [center.getCoordinates()[0], center.getCoordinates()[1]],
+    guessableZone: [min[0], min[1], max[0], max[1]],
+    center,
     target,
   };
 }

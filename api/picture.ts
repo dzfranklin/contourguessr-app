@@ -26,7 +26,14 @@ export interface PictureSize {
 }
 
 export async function fetchRandomPicture(region: string): Promise<Picture> {
-  const resp = await fetch(`${API_ENDPOINT}/picture/${region}/random`);
+  return fetchPicture(region, "random");
+}
+
+export async function fetchPicture(
+  region: string,
+  id: string
+): Promise<Picture> {
+  const resp = await fetch(`${API_ENDPOINT}/picture/${region}/${id}`);
   if (!resp.ok) {
     throw new Error("Failed to fetch regions");
   }

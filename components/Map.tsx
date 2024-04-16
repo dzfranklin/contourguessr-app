@@ -127,11 +127,21 @@ export default function MapComponent({
         ]),
       })
     );
+    src.addFeature(
+      new Feature({
+        geometry: new Point(view.target),
+        // geometry: new Point([view.guessableZone[0], view.guessableZone[1]]),
+        // geometry: new Point([view.guessableZone[2], view.guessableZone[3]]),
+      })
+    );
     const layer = new VectorLayer({
       source: src,
       style: {
         "stroke-color": "rgba(0, 0, 0, 1)",
         "stroke-width": 3,
+
+        "circle-radius": 5,
+        "circle-fill-color": "red",
       },
     });
     map.addLayer(layer);
