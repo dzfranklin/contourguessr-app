@@ -26,15 +26,23 @@ export default function PictureComponent({ value }: { value?: Picture }) {
 
       {value && (
         <div className="flex justify-between gap-4 mt-2 text-gray-600">
-          <a href={value?.ownerWebpage} className="flex gap-2 items-center">
+          <a
+            href={value?.ownerWebpage}
+            target="_blank"
+            className="flex gap-2 items-center"
+          >
             <img src={value?.ownerIcon} alt="" className="h-6 w-6 rounded-sm" />
             <span className="text-sm underline text-blue-800">
               {value?.ownerUsername}
             </span>
           </a>
           <div className="flex gap-2 text-sm">
-            <a className="underline text-blue-800" href={value?.url}>
-              Visit image source
+            <a
+              className="underline text-blue-800"
+              href={value?.url}
+              target="_blank"
+            >
+              View original image
             </a>
           </div>
         </div>
