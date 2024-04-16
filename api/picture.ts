@@ -3,6 +3,8 @@ import { API_ENDPOINT } from "./endpoint";
 export interface Picture {
   id: string;
   sizes: PictureSize[];
+  rx: number;
+  ry: number;
   ownerUsername: string;
   ownerIcon: string;
   ownerWebpage: string;

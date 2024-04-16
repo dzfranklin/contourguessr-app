@@ -1,3 +1,4 @@
+import { Picture } from "@/api/picture";
 import { Point } from "ol/geom";
 
 /** All in EPSG:4326 */
@@ -20,14 +21,19 @@ const p = 0;
  *
  * Target is a pair of coordinates in EPSG:4326.
  */
-export function computeView(target: [number, number]): GameView {
+export function computeView(picture: Picture): GameView {
+  const target: [number, number] = [
+    parseFloat(picture.longitude),
+    parseFloat(picture.latitude),
+  ];
+
   const t = new Point(target);
   // Transform into a crs with a unit of measurement in meters. This works as
   // long as d_max is reasonably small and target isn't near the poles.
   t.transform("EPSG:4326", "EPSG:3857");
 
-  const x = Math.random() * d_max;
-  const y = Math.random() * d_max;
+  const x = picture.rx * d_max;
+  const y = picture.ry * d_max;
 
   const min = t.clone();
   min.translate(-x - p, -(d_max - y) - p);

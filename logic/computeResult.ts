@@ -2,6 +2,7 @@ import { Picture } from "@/api/picture";
 import { getDistance } from "ol/sphere";
 
 export interface GameResult {
+  ts: number;
   picture: string;
   distance: number;
 }
@@ -18,5 +19,5 @@ export default function computeResult(
   const distance = Math.round(
     getDistance(target as unknown as any[], guess as unknown as any[])
   );
-  return { picture: picture.id, distance };
+  return { ts: Date.now(), picture: picture.id, distance };
 }

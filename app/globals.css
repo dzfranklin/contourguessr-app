@@ -15,3 +15,7 @@ body {
     text-wrap: balance;
   }
 }
+
+.link {
+  @apply underline text-blue-800;
+}

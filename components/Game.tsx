@@ -24,12 +24,7 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
     setPicture(undefined);
     setView(undefined);
     fetchRandomPicture(regionId).then((picture) => {
-      const target: [number, number] = [
-        parseFloat(picture.longitude),
-        parseFloat(picture.latitude),
-      ];
-      const view = computeView(target);
-
+      const view = computeView(picture);
       setPicture(picture);
       setView(view);
     });
@@ -53,6 +48,7 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
           pushResult(computeResult(picture, guess));
           setStatus("done");
         }}
+        results={results}
       />
 
       <div className="col-span-full row-start-2">

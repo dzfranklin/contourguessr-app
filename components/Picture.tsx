@@ -32,16 +32,10 @@ export default function PictureComponent({ value }: { value?: Picture }) {
             className="flex gap-2 items-center"
           >
             <img src={value?.ownerIcon} alt="" className="h-6 w-6 rounded-sm" />
-            <span className="text-sm underline text-blue-800">
-              {value?.ownerUsername}
-            </span>
+            <span className="text-sm link">{value?.ownerUsername}</span>
           </a>
           <div className="flex gap-2 text-sm">
-            <a
-              className="underline text-blue-800"
-              href={value?.url}
-              target="_blank"
-            >
+            <a className="link" href={value?.url} target="_blank">
               View original image
             </a>
           </div>
