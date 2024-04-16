@@ -53,21 +53,26 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
           pushResult(computeResult(picture, guess));
           setStatus("done");
         }}
-        onNew={() => {
-          setPicNum((n) => n + 1);
-          setGuess(null);
-          setStatus("start");
-        }}
       />
 
       <div className="col-span-full row-start-2">
         {status === "done" && (
-          <>
-            <div className="text-2xl font-semibold text-center">
-              {results.at(-1)!.distance.toFixed(0)} meters away
+          <div className="flex justify-center gap-8 my-4">
+            <div className="text-xl font-semibold text-center">
+              Your guess is off by {results.at(-1)!.distance.toFixed(0)} meters
             </div>
-            <button className="mx-auto"></button>
-          </>
+
+            <button
+              className="rounded-md bg-indigo-500 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+              onClick={() => {
+                setPicNum((n) => n + 1);
+                setGuess(null);
+                setStatus("start");
+              }}
+            >
+              New challenge
+            </button>
+          </div>
         )}
       </div>
 

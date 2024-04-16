@@ -9,14 +9,12 @@ export default function ControlsComponent({
   regions,
   status,
   onGuess,
-  onNew,
 }: {
   region: string;
   setRegion: (value: string) => void;
   regions: Region[];
   status: GameStatus;
   onGuess: () => void;
-  onNew: () => void;
 }) {
   return (
     <div className="col-span-full flex flex-col mx-4 mt-4 mb-2">
@@ -36,14 +34,6 @@ export default function ControlsComponent({
             onClick={() => onGuess()}
           >
             Guess
-          </button>
-        )}
-        {status === "done" && (
-          <button
-            className="ml-auto rounded-md bg-indigo-500 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-            onClick={() => onNew()}
-          >
-            New challenge
           </button>
         )}
       </div>
