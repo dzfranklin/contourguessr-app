@@ -1,8 +1,7 @@
 import { Picture } from "@/api/picture";
 import { Point } from "ol/geom";
 import { getDistance } from "ol/sphere";
-import destination from "@turf/destination";
-import midpoint from "@turf/midpoint";
+import { destination, midpoint } from "@turf/turf";
 import { point } from "@turf/helpers";
 
 // TODO: Debug these calculations
