@@ -64,6 +64,7 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
       <ControlsComponent
         picture={picture}
         region={region}
+        view={view}
         setRegion={setRegionId}
         regions={regions}
         status={status}

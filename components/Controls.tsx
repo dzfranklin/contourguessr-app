@@ -7,10 +7,12 @@ import StatsModal from "./StatsModal";
 import { GameResult } from "@/logic/computeResult";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import { Picture } from "@/api/picture";
+import { GameView } from "@/logic/computeView";
 
 export default function ControlsComponent({
   picture,
   region,
+  view,
   setRegion,
   regions,
   status,
@@ -19,6 +21,7 @@ export default function ControlsComponent({
 }: {
   picture?: Picture;
   region?: Region;
+  view?: GameView;
   setRegion: (value: string) => void;
   regions: Region[];
   status: GameStatus;
@@ -68,8 +71,17 @@ export default function ControlsComponent({
         )}
       </div>
 
-      <div className="text-sm text-gray-500">
-        Tip: Hold down Alt+Shift and drag to rotate
+      <div className="flex justify-between">
+        <div className="text-sm text-gray-500">
+          Tip: Hold down Alt+Shift and drag to rotate
+        </div>
+        <div className="text-sm text-gray-500">
+          {view && (
+            <>
+              Near {view.center[1].toFixed(4)}, {view.center[0].toFixed(4)}
+            </>
+          )}
+        </div>
       </div>
 
       <StatsModal
