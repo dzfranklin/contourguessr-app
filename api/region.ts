@@ -3,7 +3,7 @@ import { API_ENDPOINT } from "./endpoint";
 export interface Region {
   id: string;
   name: string;
-  logo: string;
+  logo?: string;
   bbox: [number, number, number, number];
   tiles: {
     capabilities: string;

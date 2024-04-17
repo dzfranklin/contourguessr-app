@@ -23,9 +23,17 @@ export default function RegionSelectorComponent({
         <Menu.Button className="inline-flex w-full justify-between items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm text-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
           <span className="inline-flex gap-2 items-center font-semibold">
             {selectedData ? (
-              <img src={selectedData.logo} alt="" className="h-8" />
+              selectedData.logo ? (
+                <img
+                  src={selectedData.logo}
+                  alt=""
+                  className="h-8 rounded-sm"
+                />
+              ) : (
+                <span className="h-8 w-8" />
+              )
             ) : (
-              <span className="h-8 w-8 bg-gray-200 rounded-md" />
+              <span className="h-8 w-8 bg-gray-200 rounded-sm" />
             )}
             <span>{selectedData?.name || "Select region"}</span>
           </span>
