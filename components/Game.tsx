@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Ref,
+  RefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Region } from "@/api/region";
 import { Picture, fetchPicture, fetchRandomPicture } from "@/api/picture";
 import PictureComponent from "./Picture";
@@ -14,12 +21,13 @@ import { useSearchParams } from "next/navigation";
 
 export default function GameComponent({ regions }: { regions: Region[] }) {
   const searchParams = useSearchParams();
-  const force = searchParams.get("_force");
   const cheatMode = searchParams.get("_cheat") !== null;
+  const initialRegionParam = useRef(searchParams.get("r") || undefined);
+  const initialPictureParam = useRef(searchParams.get("p") || undefined);
 
   const [picNum, setPicNum] = useState(0);
 
-  const [region, setRegionId] = useRegion(regions, force);
+  const [region, setRegionId] = useRegion(regions, initialRegionParam);
 
   const [picture, setPicture] = useState<Picture | undefined>(undefined);
   const [view, setView] = useState<GameView | undefined>(undefined);
@@ -35,13 +43,15 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
       setView(view);
     };
 
-    if (force) {
-      const [region, pictureId] = force.split(",");
-      fetchPicture(region, pictureId).then(assign);
+    if (initialRegionParam.current && initialPictureParam.current) {
+      fetchPicture(
+        initialRegionParam.current,
+        initialPictureParam.current
+      ).then(assign);
     } else {
       fetchRandomPicture(region.id).then(assign);
     }
-  }, [region, picNum, force]);
+  }, [region, picNum]);
 
   const [guess, setGuess] = useState<[number, number] | null>(null);
 
@@ -52,7 +62,8 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
   return (
     <main className="game">
       <ControlsComponent
-        region={region?.id}
+        picture={picture}
+        region={region}
         setRegion={setRegionId}
         regions={regions}
         status={status}
@@ -118,12 +129,11 @@ function useResults(): [GameResult[], (_: GameResult) => void] {
 
 function useRegion(
   regions: Region[],
-  force: string | null
+  initialRegionParam: RefObject<string | undefined>
 ): [Region | undefined, (_: string) => void] {
-  let [current, setCurrent] = useState<string | undefined>(undefined);
-  if (force) {
-    current = force.split(",")[0];
-  }
+  let [current, setCurrent] = useState<string | undefined>(
+    initialRegionParam.current ?? undefined
+  );
 
   let region = current
     ? regions.find((r) => r.id === current) || regions[0]!
@@ -131,13 +141,16 @@ function useRegion(
 
   const initialDefault = useRef(regions[0]!.id);
   useEffect(() => {
+    if (initialRegionParam.current) {
+      return;
+    }
     let stored = localStorage.getItem("region");
     if (stored) {
       setCurrent(stored);
     } else {
       setCurrent(initialDefault.current);
     }
-  }, []);
+  }, [initialRegionParam]);
 
   const setRegion = useCallback((id: string) => {
     setCurrent(id);

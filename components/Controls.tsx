@@ -5,8 +5,11 @@ import { GameStatus } from "@/logic/GameStatus";
 import { useState } from "react";
 import StatsModal from "./StatsModal";
 import { GameResult } from "@/logic/computeResult";
+import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
+import { Picture } from "@/api/picture";
 
 export default function ControlsComponent({
+  picture,
   region,
   setRegion,
   regions,
@@ -14,7 +17,8 @@ export default function ControlsComponent({
   onGuess,
   results,
 }: {
-  region?: string;
+  picture?: Picture;
+  region?: Region;
   setRegion: (value: string) => void;
   regions: Region[];
   status: GameStatus;
@@ -27,11 +31,25 @@ export default function ControlsComponent({
       <div className="flex flex-row gap-3 items-center mb-1">
         <div className="mr-3">
           <RegionSelectorComponent
-            selected={region}
+            selected={region?.id}
             setSelected={setRegion}
             regions={regions}
           />
         </div>
+
+        <button
+          type="button"
+          className="rounded-full p-1.5 shadow-sm ring-1 ring-inset ring-gray-300 bg-white hover:bg-gray-50"
+          title="Copy the link to this challenge"
+          onClick={() => {
+            const url = new URL(window.location.href);
+            url.searchParams.set("r", region?.id || "");
+            url.searchParams.set("p", picture?.id || "");
+            navigator.clipboard.writeText(url.toString());
+          }}
+        >
+          <LinkIcon className="h-5 w-5" aria-hidden="true" />
+        </button>
 
         <div className="ml-auto" />
 
