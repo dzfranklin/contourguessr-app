@@ -124,6 +124,8 @@ function StatChartComponent({ results }: { results: GameResult[] }) {
       {
         getValue: (d) => d.distance,
         scaleType: "linear",
+        elementType: "bubble",
+        showDatumElements: true,
       },
     ],
     []
