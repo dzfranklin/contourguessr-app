@@ -3,7 +3,6 @@ import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { GameResult } from "@/logic/computeResult";
 import { AxisOptions, Chart, UserSerie } from "react-charts";
-import { scale } from "ol/transform";
 
 export default function StatsModalComponent({
   results,
