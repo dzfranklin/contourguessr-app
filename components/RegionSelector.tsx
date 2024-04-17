@@ -54,7 +54,7 @@ export default function RegionSelectorComponent({
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute left-0 z-10 mt-2 w-80 max-h-[60vh] overflow-y-scroll origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <Menu.Items className="absolute left-0 z-10 mt-2 w-[25rem] max-h-[60vh] overflow-y-scroll origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
           {regions.map((region) => (
             <Menu.Item key={region.id}>
               {({ active }) => (
@@ -62,14 +62,20 @@ export default function RegionSelectorComponent({
                   onClick={() => setSelected(region.id)}
                   className={classNames(
                     active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                    "w-full group flex gap-2 items-center px-6 py-6 text-sm"
+                    "w-full group flex gap-3 items-center px-6 py-6 text-sm"
                   )}
                 >
-                  {region.logo ? (
-                    <img src={region.logo} alt="" className="h-10 rounded-sm" />
-                  ) : (
-                    <span className="h-8 w-8" />
-                  )}
+                  <div className="h-10 w-10 flex items-center justify-end">
+                    {region.logo ? (
+                      <img
+                        src={region.logo}
+                        alt=""
+                        className="h-full rounded-sm"
+                      />
+                    ) : (
+                      <span className="h-full aspect-square" />
+                    )}
+                  </div>
                   <span>{region.name}</span>
                 </button>
               )}
