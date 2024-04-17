@@ -14,7 +14,7 @@ export default function ControlsComponent({
   onGuess,
   results,
 }: {
-  region: string;
+  region?: string;
   setRegion: (value: string) => void;
   regions: Region[];
   status: GameStatus;

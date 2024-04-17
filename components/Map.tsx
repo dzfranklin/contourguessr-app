@@ -47,7 +47,7 @@ export default function MapComponent({
   cheatMode,
 }: {
   picture?: Picture;
-  region: Region;
+  region?: Region;
   view?: GameView;
   guess: [number, number] | null;
   setGuess: (_: [number, number]) => void;
@@ -56,7 +56,11 @@ export default function MapComponent({
 }) {
   const [wmtsOptions, setWMTSOptions] = useState<WMTSOptions | null>(null);
   useEffect(() => {
+    if (!region) return;
     fetchWMTS(region.tiles).then((options) => setWMTSOptions(options));
+    return () => {
+      setWMTSOptions(null);
+    };
   }, [region]);
 
   const mapRef = useRef<Map | null>(null);
@@ -74,7 +78,7 @@ export default function MapComponent({
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!view || !container || !wmtsOptions) return;
+    if (!region || !view || !container || !wmtsOptions) return;
 
     let attributions: string[];
     if (typeof wmtsOptions.attributions === "string") {
@@ -247,7 +251,7 @@ export default function MapComponent({
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!region?.tiles.osBranding || !container) return;
 
     if (region.tiles.osBranding) {
       OSBranding.init({ elem: container });
@@ -258,7 +262,7 @@ export default function MapComponent({
         .querySelectorAll(".os-api-branding")
         .forEach((el) => el.remove());
     };
-  }, [region.tiles.osBranding]);
+  }, [region?.tiles.osBranding]);
 
   return (
     <div className="row-span-full row-start-3 col-span-full">

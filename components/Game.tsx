@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Region } from "@/api/region";
 import { Picture, fetchPicture, fetchRandomPicture } from "@/api/picture";
 import PictureComponent from "./Picture";
@@ -19,18 +19,15 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
 
   const [picNum, setPicNum] = useState(0);
 
-  let [regionId, setRegionId] = useState(regions[0]!.id);
-  if (force) {
-    regionId = force.split(",")[0];
-  }
-  const region = regions.find((r) => r.id === regionId);
-  if (!region) throw new Error("Invalid region");
+  const [region, setRegionId] = useRegion(regions, force);
 
   const [picture, setPicture] = useState<Picture | undefined>(undefined);
   const [view, setView] = useState<GameView | undefined>(undefined);
   useEffect(() => {
     setPicture(undefined);
     setView(undefined);
+
+    if (!region) return;
 
     const assign = (picture: Picture) => {
       const view = computeView(picture);
@@ -42,9 +39,9 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
       const [region, pictureId] = force.split(",");
       fetchPicture(region, pictureId).then(assign);
     } else {
-      fetchRandomPicture(regionId).then(assign);
+      fetchRandomPicture(region.id).then(assign);
     }
-  }, [regionId, picNum, force]);
+  }, [region, picNum, force]);
 
   const [guess, setGuess] = useState<[number, number] | null>(null);
 
@@ -55,7 +52,7 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
   return (
     <main className="game">
       <ControlsComponent
-        region={regionId}
+        region={region?.id}
         setRegion={setRegionId}
         regions={regions}
         status={status}
@@ -117,4 +114,35 @@ function useResults(): [GameResult[], (_: GameResult) => void] {
     setValue(stored);
   }, []);
   return [value, addResult];
+}
+
+function useRegion(
+  regions: Region[],
+  force: string | null
+): [Region | undefined, (_: string) => void] {
+  let [current, setCurrent] = useState<string | undefined>(undefined);
+  if (force) {
+    current = force.split(",")[0];
+  }
+
+  let region = current
+    ? regions.find((r) => r.id === current) || regions[0]!
+    : undefined;
+
+  const initialDefault = useRef(regions[0]!.id);
+  useEffect(() => {
+    let stored = localStorage.getItem("region");
+    if (stored) {
+      setCurrent(stored);
+    } else {
+      setCurrent(initialDefault.current);
+    }
+  }, []);
+
+  const setRegion = useCallback((id: string) => {
+    setCurrent(id);
+    localStorage.setItem("region", id);
+  }, []);
+
+  return [region, setRegion];
 }

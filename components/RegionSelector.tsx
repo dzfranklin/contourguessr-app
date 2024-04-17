@@ -11,22 +11,23 @@ export default function RegionSelectorComponent({
   setSelected: setSelected,
   regions: regions,
 }: {
-  selected: string;
+  selected?: string;
   setSelected: (_: string) => void;
   regions: Region[];
 }) {
   const selectedData = regions.find((region) => region.id === selected);
-  if (!selectedData) {
-    throw new Error("Selected region not found");
-  }
 
   return (
     <Menu as="div" className="relative inline-block text-left w-72">
       <div>
         <Menu.Button className="inline-flex w-full justify-between items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm text-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
           <span className="inline-flex gap-2 items-center font-semibold">
-            <img src={selectedData.logo} alt="" className="h-8" />
-            <span>{selectedData.name}</span>
+            {selectedData ? (
+              <img src={selectedData.logo} alt="" className="h-8" />
+            ) : (
+              <span className="h-8 w-8 bg-gray-200 rounded-md" />
+            )}
+            <span>{selectedData?.name || "Select region"}</span>
           </span>
 
           <ChevronDownIcon
