@@ -35,7 +35,7 @@ export async function fetchPicture(
 ): Promise<Picture> {
   const resp = await fetch(`${API_ENDPOINT}/picture/${region}/${id}`);
   if (!resp.ok) {
-    throw new Error("Failed to fetch regions");
+    throw new Error("Failed to fetch picture data");
   }
   return resp.json();
 }
