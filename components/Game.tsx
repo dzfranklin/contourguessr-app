@@ -53,6 +53,16 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
     }
   }, [region, picNum]);
 
+  useEffect(() => {
+    if (
+      region &&
+      region.id !== initialRegionParam.current &&
+      initialRegionParam.current
+    ) {
+      location.search = "";
+    }
+  }, [region]);
+
   const [guess, setGuess] = useState<[number, number] | null>(null);
 
   const [results, pushResult] = useResults();
