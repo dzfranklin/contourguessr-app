@@ -111,10 +111,7 @@ export default function MapComponent({
       controls: [
         new Zoom(),
         new Rotate(),
-        new Attribution({
-          collapsed: false,
-          collapsible: false,
-        }),
+        new Attribution({}),
         new ScaleLine({
           bar: true,
         }),

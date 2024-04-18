@@ -18,3 +18,7 @@
 .map-target-marker {
   background-image: url("./targetMarker.svg");
 }
+
+.ol-attribution {
+  max-width: calc(100% - 400px);
+}
