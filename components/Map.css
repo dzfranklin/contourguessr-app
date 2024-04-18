@@ -32,7 +32,7 @@
   right: 10px;
   bottom: 10px;
   text-indent: -9999px;
-  z-index: 99999;
+  z-index: 49;
   overflow: hidden;
 
   background-image: url(/mapbox-logo-black.svg);
