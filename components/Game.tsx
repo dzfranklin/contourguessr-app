@@ -56,7 +56,7 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
     } else {
       fetchRandomPicture(region.id).then(assign);
     }
-  }, [region, picNum]);
+  }, [region, picNum, dFactor]);
 
   useEffect(() => {
     if (

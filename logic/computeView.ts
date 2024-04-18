@@ -31,9 +31,9 @@ export function computeView(picture: Picture, d: number): GameView {
   const { rx, ry } = picture;
 
   const angle = rx * 360;
-  const length = ry * d;
+  const length = ry * (d - p);
   const centerP = turf.destination(target, length, angle);
-  const edgeP = turf.destination(centerP, d + p, 90);
+  const edgeP = turf.destination(centerP, d, 90);
   const radius = distance(
     centerP.geometry.coordinates,
     edgeP.geometry.coordinates
