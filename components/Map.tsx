@@ -29,6 +29,7 @@ import { GameView } from "@/logic/computeView";
 import { FlatStyleLike } from "ol/style/flat";
 import LayerGroup from "ol/layer/Group";
 import { XYZ } from "ol/source";
+import { Circle } from "ol/geom";
 
 // eslint-disable-next-line react-hooks/rules-of-hooks -- not a hook
 useGeographic();
@@ -164,22 +165,16 @@ export default function MapComponent({
     });
     mapRef.current = map;
 
-    const src = new VectorSource({});
+    const src = new VectorSource();
     src.addFeature(
       new Feature({
-        geometry: new LineString([
-          [view.guessableZone[0], view.guessableZone[1]],
-          [view.guessableZone[0], view.guessableZone[3]],
-          [view.guessableZone[2], view.guessableZone[3]],
-          [view.guessableZone[2], view.guessableZone[1]],
-          [view.guessableZone[0], view.guessableZone[1]],
-        ]),
+        geometry: view.circle,
       })
     );
 
     let style: FlatStyleLike = {
-      "stroke-color": "rgba(0, 0, 0, 1)",
-      "stroke-width": 3,
+      "stroke-color": "#4d7c0f",
+      "stroke-width": 5,
     };
 
     if (cheatMode) {
@@ -205,11 +200,9 @@ export default function MapComponent({
     map.addEventListener("click", (event) => {
       if (!(event instanceof MapBrowserEvent)) return;
       const status = statusRef.current;
-      const c = event.coordinate;
+      const c = event.coordinate as [number, number];
       if (!(status === "start" || status === "guessing")) return;
-      if (c[0] < view.guessableZone[0] || c[0] > view.guessableZone[2]) return;
-      if (c[1] < view.guessableZone[1] || c[1] > view.guessableZone[3]) return;
-      setGuessRef.current([c[0]!, c[1]!]);
+      setGuessRef.current(c);
     });
 
     return () => {
