@@ -27,6 +27,8 @@ import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
 import { GameView } from "@/logic/computeView";
 import { FlatStyleLike } from "ol/style/flat";
+import LayerGroup from "ol/layer/Group";
+import { XYZ } from "ol/source";
 
 // eslint-disable-next-line react-hooks/rules-of-hooks -- not a hook
 useGeographic();
@@ -64,6 +66,8 @@ export default function MapComponent({
   }, [region]);
 
   const mapRef = useRef<Map | null>(null);
+  const primaryLayerRef = useRef<TileLayer<WMTS> | null>(null);
+  const imageryLayerRef = useRef<LayerGroup | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const statusRef = useRef(status);
@@ -92,6 +96,54 @@ export default function MapComponent({
       attributions = attributions.concat(region.tiles.extraAttributions);
     }
 
+    const mbAuth = "?access_token=" + process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+    const mapboxAttribution = `© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>`;
+    const imageryLayer = new LayerGroup({
+      visible: false,
+      layers: [
+        new TileLayer({
+          source: new XYZ({
+            url:
+              "https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.jpeg90" +
+              mbAuth,
+            projection: "EPSG:3857",
+            attributions: [mapboxAttribution],
+          }),
+        }),
+        new TileLayer({
+          source: new XYZ({
+            url:
+              "https://api.mapbox.com/v4/mapbox.naip/{z}/{x}/{y}.jpeg90" +
+              mbAuth,
+            minZoom: 13,
+            maxZoom: 17,
+            projection: "EPSG:3857",
+            attributions: ["NAIP", mapboxAttribution],
+          }),
+        }),
+        new TileLayer({
+          source: new XYZ({
+            url:
+              "https://api.mapbox.com/v4/mapbox.satellite-watermask{z}/{x}/{y}.jpeg90" +
+              mbAuth,
+            minZoom: 13,
+            maxZoom: 17,
+            projection: "EPSG:3857",
+            attributions: [mapboxAttribution],
+          }),
+        }),
+      ],
+    });
+    imageryLayerRef.current = imageryLayer;
+
+    const primaryLayer = new TileLayer({
+      source: new WMTS({
+        ...wmtsOptions,
+        attributions,
+      }),
+    });
+    primaryLayerRef.current = primaryLayer;
+
     let map = new Map({
       target: container,
       view: new View({
@@ -100,14 +152,7 @@ export default function MapComponent({
         resolutions: region.tiles.resolutions,
         resolution: region.tiles.defaultResolution,
       }),
-      layers: [
-        new TileLayer({
-          source: new WMTS({
-            ...wmtsOptions,
-            attributions,
-          }),
-        }),
-      ],
+      layers: [imageryLayer, primaryLayer],
       controls: [
         new Zoom(),
         new Rotate(),
@@ -238,11 +283,18 @@ export default function MapComponent({
 
       map.addOverlay(marker);
       map.addLayer(layer);
+
+      primaryLayerRef.current?.setOpacity(0.7);
+      imageryLayerRef.current?.setVisible(true);
     }
 
     return () => {
       if (marker) map.removeOverlay(marker);
       if (layer) map.removeLayer(layer);
+      if (status === "done") {
+        primaryLayerRef.current?.setOpacity(1);
+        imageryLayerRef.current?.setVisible(false);
+      }
     };
   }, [status, picture, guess]);
 
@@ -263,7 +315,9 @@ export default function MapComponent({
 
   return (
     <div className="row-span-full row-start-3 col-span-full">
-      <div ref={containerRef} className="w-full h-full relative"></div>
+      <div ref={containerRef} className="w-full h-full relative">
+        <div className="mapbox-logo" />
+      </div>
     </div>
   );
 }

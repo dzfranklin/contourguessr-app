@@ -21,4 +21,22 @@
 
 .ol-attribution {
   max-width: calc(100% - 400px);
+  right: 85px;
+}
+
+.mapbox-logo {
+  position: absolute;
+  display: block;
+  height: 20px;
+  width: 65px;
+  right: 10px;
+  bottom: 10px;
+  text-indent: -9999px;
+  z-index: 99999;
+  overflow: hidden;
+
+  background-image: url(/mapbox-logo-black.svg);
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: 65px 20px;
 }
