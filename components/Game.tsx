@@ -75,7 +75,12 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
         picture={picture}
         region={region}
         view={view}
-        setRegion={setRegionId}
+        setRegion={(id) => {
+          setPicNum((n) => n + 1);
+          setGuess(null);
+          setStatus("start");
+          setRegionId(id);
+        }}
         regions={regions}
         status={status}
         onGuess={() => {
