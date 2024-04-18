@@ -19,9 +19,14 @@ import { GameStatus } from "@/logic/GameStatus";
 import { GameView, computeView } from "@/logic/computeView";
 import { useSearchParams } from "next/navigation";
 
+const defaultDFactor = 2.5;
+
 export default function GameComponent({ regions }: { regions: Region[] }) {
   const searchParams = useSearchParams();
   const cheatMode = searchParams.get("_cheat") !== null;
+  const dFactor = searchParams.get("_d")
+    ? parseFloat(searchParams.get("_d")!)
+    : defaultDFactor;
   const initialRegionParam = useRef(searchParams.get("r") || undefined);
   const initialPictureParam = useRef(searchParams.get("p") || undefined);
 
@@ -38,7 +43,7 @@ export default function GameComponent({ regions }: { regions: Region[] }) {
     if (!region) return;
 
     const assign = (picture: Picture) => {
-      const view = computeView(picture);
+      const view = computeView(picture, dFactor);
       setPicture(picture);
       setView(view);
     };

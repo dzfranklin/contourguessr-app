@@ -10,10 +10,6 @@ export interface GameView {
   target: [number, number];
 }
 
-// The maximum distance in km the center of the guessable zone can be from
-// the target. This makes the diameter about 3 miles.
-const d = 2.5;
-
 // The padding around the guessable zone, or the minimum distance target to the
 // edge of the guessable zone.
 // const p = 0.5;
@@ -21,9 +17,12 @@ const p = 0.25;
 
 /*** Compoutes a random view for a given target.
  *
+ * `d` is the maximum distance in km the center of the guessable zone can be from
+ * the target. This makes the diameter about 3 miles.
+ *
  * Target is a pair of coordinates in EPSG:4326.
  */
-export function computeView(picture: Picture): GameView {
+export function computeView(picture: Picture, d: number): GameView {
   const target: [number, number] = [
     parseFloat(picture.longitude),
     parseFloat(picture.latitude),
