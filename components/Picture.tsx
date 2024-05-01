@@ -37,8 +37,6 @@ export default function PictureComponent({ value }: { value?: Picture }) {
           : "w-[400px] h-[400px] mt-2 mr-2 row-start-3 col-span-full col-start-2"
       }
     >
-      {largeSize && <link rel="preload" as="image" href={largeSize.source} />}
-
       <div
         className={classNames(
           "ml-auto relative pointer-events-auto max-w-full max-h-full bg-white rounded-md overflow-clip shadow-md"
