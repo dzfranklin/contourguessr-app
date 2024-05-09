@@ -1,34 +1,15 @@
-import { Picture, PictureSize } from "@/api/picture";
 import classNames from "@/classNames";
 import { useState } from "react";
 import ArrowsPointingOutIcon from "@heroicons/react/20/solid/ArrowsPointingOutIcon";
 import ArrowsPointingInIcon from "@heroicons/react/20/solid/ArrowsPointingInIcon";
+import { useChallenge } from "@/hooks/useChallenge";
 
-export default function PictureComponent({ value }: { value?: Picture }) {
-  let regularSize: PictureSize | undefined;
-  let largeSize: PictureSize | undefined;
-  for (const size of value?.sizes || []) {
-    if (size.label === "Original") {
-      // The original images has nuances like exif rotation that we don't want
-      // to deal with.
-      break;
-    }
-    if (regularSize === undefined || size.height <= 400 || size.width <= 400) {
-      regularSize = size;
-    }
-
-    if (
-      largeSize === undefined ||
-      size.height > largeSize.height ||
-      size.width > largeSize.width
-    ) {
-      largeSize = size;
-    }
-  }
-
+export default function PictureComponent() {
+  const {
+    data: { src, photographer, link },
+  } = useChallenge();
   const [showLarge, setShowLarge] = useState(false);
-  const size = showLarge ? largeSize : regularSize;
-
+  const size = showLarge ? src.large : src.regular;
   return (
     <div
       className={
@@ -51,9 +32,9 @@ export default function PictureComponent({ value }: { value?: Picture }) {
               }
         }
       >
-        {value && size ? (
+        {size ? (
           <img
-            src={size.source}
+            src={size.src}
             width={size.width}
             height={size.height}
             alt=""
@@ -75,25 +56,23 @@ export default function PictureComponent({ value }: { value?: Picture }) {
           )}
         </button>
 
-        {value && (
-          <div className="absolute bottom-0 left-0 right-0 p-2 grid grid-cols-[auto_minmax(0,1fr)_auto] grid-rows-1 gap-2 items-center bg-[rgba(255,255,255,0.6)] text-gray-600 text-sm">
-            <img src={value?.ownerIcon} alt="" className="h-6 w-6 rounded-sm" />
-            <a
-              href={value?.ownerWebpage}
-              target="_blank"
-              className="shrink text-blue-900 underline mr-6 truncate"
-            >
-              {value?.ownerUsername}
-            </a>
-            <a
-              className="text-blue-900 underline ml-auto"
-              href={value?.url}
-              target="_blank"
-            >
-              Original image
-            </a>
-          </div>
-        )}
+        <div className="absolute bottom-0 left-0 right-0 p-2 grid grid-cols-[auto_minmax(0,1fr)_auto] grid-rows-1 gap-2 items-center bg-[rgba(255,255,255,0.6)] text-gray-600 text-sm">
+          <img src={photographer.icon} alt="" className="h-6 w-6 rounded-sm" />
+          <a
+            href={photographer.link}
+            target="_blank"
+            className="shrink text-blue-900 underline mr-6 truncate"
+          >
+            {photographer.text}
+          </a>
+          <a
+            className="text-blue-900 underline ml-auto"
+            href={link}
+            target="_blank"
+          >
+            Original image
+          </a>
+        </div>
       </div>
     </div>
   );

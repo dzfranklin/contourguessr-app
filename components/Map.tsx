@@ -9,7 +9,6 @@ import proj4 from "proj4";
 import * as olProj4 from "ol/proj/proj4";
 import "ol/ol.css";
 import { Options as WMTSOptions } from "ol/source/WMTS";
-import { Picture } from "@/api/picture";
 import { useGeographic } from "ol/proj.js";
 import Zoom from "ol/control/Zoom";
 import Rotate from "ol/control/Rotate";
@@ -25,11 +24,11 @@ import { Vector as VectorSource } from "ol/source";
 import { Vector as VectorLayer } from "ol/layer";
 import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
-import { GameView } from "@/logic/computeView";
 import { FlatStyleLike } from "ol/style/flat";
 import LayerGroup from "ol/layer/Group";
 import { XYZ } from "ol/source";
-import { Circle } from "ol/geom";
+import { useCheatMode } from "@/hooks/useCheatMode";
+import { useChallenge } from "@/hooks/useChallenge";
 
 // eslint-disable-next-line react-hooks/rules-of-hooks -- not a hook
 useGeographic();
@@ -41,26 +40,21 @@ proj4.defs(
 olProj4.register(proj4);
 
 export default function MapComponent({
-  picture,
-  region,
-  view,
   guess,
   setGuess,
   status,
-  cheatMode,
 }: {
-  picture?: Picture;
-  region?: Region;
-  view?: GameView;
   guess: [number, number] | null;
   setGuess: (_: [number, number]) => void;
   status: GameStatus;
-  cheatMode: boolean;
 }) {
+  const { region, view } = useChallenge();
+  const cheatMode = useCheatMode();
+
   const [wmtsOptions, setWMTSOptions] = useState<WMTSOptions | null>(null);
   useEffect(() => {
-    if (!region) return;
-    fetchWMTS(region.tiles).then((options) => setWMTSOptions(options));
+    const options = parseLayerOptions(region.map_layer);
+    setWMTSOptions(options);
     return () => {
       setWMTSOptions(null);
     };
@@ -93,9 +87,7 @@ export default function MapComponent({
     } else {
       attributions = [];
     }
-    if (region.tiles.extraAttributions) {
-      attributions = attributions.concat(region.tiles.extraAttributions);
-    }
+    attributions = attributions.concat(region.map_layer.extra_attributions);
 
     const mbAuth = "?access_token=" + process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
     const mapboxAttribution = `© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>`;
@@ -150,8 +142,8 @@ export default function MapComponent({
       view: new View({
         center: view.center,
         constrainResolution: true,
-        resolutions: region.tiles.resolutions,
-        resolution: region.tiles.defaultResolution,
+        resolutions: region.map_layer.resolutions,
+        resolution: region.map_layer.default_resolution,
       }),
       layers: [imageryLayer, primaryLayer],
       controls: [
@@ -238,12 +230,9 @@ export default function MapComponent({
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !picture || !guess) return;
+    if (!map || !guess) return;
 
-    const target: [number, number] = [
-      parseFloat(picture.longitude),
-      parseFloat(picture.latitude),
-    ];
+    const { target } = view;
 
     let marker: Overlay | null = null;
     let layer: VectorLayer<VectorSource> | null = null;
@@ -289,13 +278,13 @@ export default function MapComponent({
         imageryLayerRef.current?.setVisible(false);
       }
     };
-  }, [status, picture, guess]);
+  }, [status, view, guess]);
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!region?.tiles.osBranding || !container) return;
+    if (!region.map_layer.os_branding || !container) return;
 
-    if (region.tiles.osBranding) {
+    if (region.map_layer.os_branding) {
       OSBranding.init({ elem: container });
     }
 
@@ -304,7 +293,7 @@ export default function MapComponent({
         .querySelectorAll(".os-api-branding")
         .forEach((el) => el.remove());
     };
-  }, [region?.tiles.osBranding]);
+  }, [region.map_layer.os_branding]);
 
   return (
     <div className="row-span-full row-start-3 col-span-full">
@@ -317,16 +306,11 @@ export default function MapComponent({
 
 const capabilitiesParser = new WMTSCapabilities();
 
-async function fetchWMTS(tiles: Region["tiles"]) {
-  const resp = await fetch(tiles.capabilities);
-  if (!resp.ok) {
-    throw new Error("Failed to fetch WMTS capabilities");
-  }
-  const text = await resp.text();
-  const capabilities = capabilitiesParser.read(text);
+function parseLayerOptions(layer: Region["map_layer"]) {
+  const capabilities = capabilitiesParser.read(layer.capabilities_xml);
   const options = optionsFromCapabilities(capabilities, {
-    layer: tiles.layer,
-    matrixSet: tiles.matrixSet,
+    layer: layer.layer,
+    matrixSet: layer.matrix_set,
   });
   if (options === null) {
     throw new Error("Failed to parse WMTS capabilities");

@@ -1,7 +1,7 @@
 import {
   ChallengeData,
   ChallengeNotFoundError,
-  fetchRandomChallenge,
+  fetchChallenge,
 } from "@/api/challenge";
 import { Region, fetchRegions } from "@/api/region";
 import GameComponent from "@/components/Game";
@@ -10,14 +10,12 @@ import { RegionsProvider } from "@/hooks/useRegions";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
-export default async function ChallengeHomePage({
-  searchParams,
+export default async function ChallengePage({
+  params,
 }: {
-  searchParams: { r?: string };
+  params: { id: string };
 }) {
-  const { regions, challenge } = await fetchPageData(
-    searchParams.r || undefined
-  );
+  const { regions, challenge } = await fetchPageData(params.id);
 
   return (
     <RegionsProvider value={regions}>
@@ -30,14 +28,14 @@ export default async function ChallengeHomePage({
   );
 }
 
-async function fetchPageData(regionId?: string): Promise<{
+async function fetchPageData(id: string): Promise<{
   regions: Region[];
   challenge: ChallengeData;
 }> {
   try {
     const [regions, challenge] = await Promise.all([
       fetchRegions(),
-      fetchRandomChallenge(regionId),
+      fetchChallenge(id),
     ]);
     return { regions, challenge };
   } catch (e) {

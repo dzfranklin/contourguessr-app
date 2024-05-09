@@ -1,10 +1,10 @@
-import { Picture } from "@/api/picture";
+import { ChallengeData } from "@/api/challenge";
 import * as turf from "@turf/turf";
 import { distance } from "ol/coordinate";
 import { Circle } from "ol/geom";
 
 /** All in EPSG:4326 */
-export interface GameView {
+export interface ChallengeView {
   center: [number, number];
   circle: Circle;
   target: [number, number];
@@ -22,16 +22,15 @@ const p = 0.25;
  *
  * Target is a pair of coordinates in EPSG:4326.
  */
-export function computeView(picture: Picture, d: number): GameView {
-  const target: [number, number] = [
-    parseFloat(picture.longitude),
-    parseFloat(picture.latitude),
-  ];
+export function computeView(
+  challenge: ChallengeData,
+  d: number
+): ChallengeView {
+  const target: [number, number] = [challenge.geo.lng, challenge.geo.lat];
+  const r = challenge.r;
 
-  const { rx, ry } = picture;
-
-  const angle = rx * 360;
-  const length = ry * (d - p);
+  const angle = r.x * 360;
+  const length = r.y * (d - p);
   const centerP = turf.destination(target, length, angle);
   const edgeP = turf.destination(centerP, d, 90);
   const radius = distance(

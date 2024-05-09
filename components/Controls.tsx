@@ -6,36 +6,46 @@ import { useState } from "react";
 import StatsModal from "./StatsModal";
 import { GameResult } from "@/logic/computeResult";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
-import { Picture } from "@/api/picture";
-import { GameView } from "@/logic/computeView";
+import { useRegions } from "@/hooks/useRegions";
+import { useChallenge } from "@/hooks/useChallenge";
+import toast from "react-hot-toast";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export default function ControlsComponent({
-  picture,
-  region,
-  view,
-  setRegion,
-  regions,
   status,
   onGuess,
   results,
 }: {
-  picture?: Picture;
-  region?: Region;
-  view?: GameView;
-  setRegion: (value: string) => void;
-  regions: Region[];
   status: GameStatus;
   onGuess: () => void;
   results: GameResult[];
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const selectedRegion = searchParams.get("r") || undefined;
+  const { data, region, view } = useChallenge();
+  const regions = useRegions();
   const [showStats, setShowStats] = useState(false);
+
   return (
     <div className="col-span-full flex flex-col mx-4 mt-4 mb-2">
       <div className="flex flex-row gap-3 items-center mb-1">
         <div className="mr-3">
           <RegionSelectorComponent
-            selected={region?.id}
-            setSelected={setRegion}
+            selected={selectedRegion}
+            setSelected={(id) => {
+              let url = "/";
+              if (id) {
+                url += `?r=${id}`;
+              }
+
+              if (pathname === "/") {
+                router.replace(url.toString());
+              } else {
+                router.push(url.toString());
+              }
+            }}
             regions={regions}
           />
         </div>
@@ -46,9 +56,9 @@ export default function ControlsComponent({
           title="Copy the link to this challenge"
           onClick={() => {
             const url = new URL(window.location.href);
-            url.searchParams.set("r", region?.id || "");
-            url.searchParams.set("p", picture?.id || "");
+            url.pathname = `/c/${data.id}`;
             navigator.clipboard.writeText(url.toString());
+            toast.success("Link copied to clipboard");
           }}
         >
           <LinkIcon className="h-5 w-5" aria-hidden="true" />
@@ -76,11 +86,7 @@ export default function ControlsComponent({
           Tip: Hold down Alt+Shift and drag to rotate
         </div>
         <div className="text-sm text-gray-500">
-          {view && (
-            <>
-              Near {view.center[1].toFixed(4)}, {view.center[0].toFixed(4)}
-            </>
-          )}
+          Near {view.center[1].toFixed(4)}, {view.center[0].toFixed(4)}
         </div>
       </div>
 
@@ -90,32 +96,5 @@ export default function ControlsComponent({
         results={results}
       />
     </div>
-  );
-}
-
-function ControlButton({
-  onClick,
-  className,
-  disabled,
-  children,
-}: {
-  onClick?: () => void;
-  className?: string;
-  disabled?: boolean;
-  children: React.ReactNode | React.ReactNode[] | string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={classNames(
-        "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50",
-        "disabled:opacity-50 disabled:cursor-not-allowed disabled:ring-0 disabled:shadow-none",
-        className
-      )}
-    >
-      {children}
-    </button>
   );
 }
