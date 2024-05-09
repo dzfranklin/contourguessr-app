@@ -1,6 +1,4 @@
-import { Region } from "@/api/region";
 import RegionSelectorComponent from "./RegionSelector";
-import classNames from "@/classNames";
 import { GameStatus } from "@/logic/GameStatus";
 import { useState } from "react";
 import StatsModal from "./StatsModal";
@@ -9,7 +7,7 @@ import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import { useRegions } from "@/hooks/useRegions";
 import { useChallenge } from "@/hooks/useChallenge";
 import toast from "react-hot-toast";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useNavigate } from "@/hooks/useNavigate";
 
 export default function ControlsComponent({
@@ -86,8 +84,10 @@ export default function ControlsComponent({
           Tip: Hold down Alt+Shift and drag to rotate
         </div>
         <div className="text-sm text-gray-500">
-          {region.name} near {view.center[1].toFixed(4)},{" "}
-          {view.center[0].toFixed(4)}
+          {region.name} near{" "}
+          {status === "done"
+            ? view.target[1].toFixed(6) + ", " + view.target[0].toFixed(6)
+            : view.center[1].toFixed(4) + ", " + view.center[0].toFixed(4)}
         </div>
       </div>
 
