@@ -9,12 +9,13 @@ import computeResult from "@/logic/computeResult";
 import { GameStatus } from "@/logic/GameStatus";
 import { useChallenge } from "@/hooks/useChallenge";
 import { useResults } from "@/hooks/useResults";
-import { useRouter, usePathname, useParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useNavigate } from "@/hooks/useNavigate";
 
 export default function GameComponent() {
   const router = useRouter();
+  const navigate = useNavigate();
   const pathname = usePathname();
-  const queryParams = useParams();
   const [guess, setGuess] = useState<[number, number] | null>(null);
   const [results, pushResult] = useResults();
   const [status, setStatus] = useState<GameStatus>("start");
@@ -43,9 +44,9 @@ export default function GameComponent() {
               className="rounded-md bg-indigo-500 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
               onClick={() => {
                 if (pathname === "/") {
-                  router.replace(`/?${queryParams}`);
+                  router.refresh();
                 } else {
-                  router.push(`/?${queryParams}`);
+                  navigate((p) => ({ ...p, pathname: "/" }));
                 }
               }}
             >

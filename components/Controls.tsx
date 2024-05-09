@@ -10,6 +10,7 @@ import { useRegions } from "@/hooks/useRegions";
 import { useChallenge } from "@/hooks/useChallenge";
 import toast from "react-hot-toast";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useNavigate } from "@/hooks/useNavigate";
 
 export default function ControlsComponent({
   status,
@@ -20,7 +21,7 @@ export default function ControlsComponent({
   onGuess: () => void;
   results: GameResult[];
 }) {
-  const router = useRouter();
+  const navigate = useNavigate();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const selectedRegion = searchParams.get("r") || undefined;
@@ -35,16 +36,15 @@ export default function ControlsComponent({
           <RegionSelectorComponent
             selected={selectedRegion}
             setSelected={(id) => {
-              let url = "/";
-              if (id) {
-                url += `?r=${id}`;
-              }
-
-              if (pathname === "/") {
-                router.replace(url.toString());
-              } else {
-                router.push(url.toString());
-              }
+              navigate(
+                (p) => ({
+                  pathname: "/",
+                  searchParams: { ...p.searchParams, r: id },
+                }),
+                {
+                  replace: pathname === "/",
+                }
+              );
             }}
             regions={regions}
           />
@@ -86,7 +86,8 @@ export default function ControlsComponent({
           Tip: Hold down Alt+Shift and drag to rotate
         </div>
         <div className="text-sm text-gray-500">
-          Near {view.center[1].toFixed(4)}, {view.center[0].toFixed(4)}
+          {region.name} near {view.center[1].toFixed(4)},{" "}
+          {view.center[0].toFixed(4)}
         </div>
       </div>
 
