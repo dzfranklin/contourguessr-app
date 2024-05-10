@@ -64,7 +64,11 @@ export default function StatsModalComponent({
                   </button>
                 </div>
                 <div className="mt-10">
-                  <dl className="mt-5 grid grid-cols-1 divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow md:grid-cols-4 md:divide-x md:divide-y-0">
+                  <dl className="mt-5 grid grid-cols-1 divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow md:grid-cols-5 md:divide-x md:divide-y-0">
+                    <StatComponent
+                      name="Challenges"
+                      value={results.length.toString()}
+                    />
                     <StatComponent name="Average" value={average?.toFixed(0)} />
                     <StatComponent name="Median" value={median?.toFixed(0)} />
                     <StatComponent name="Best" value={best?.toFixed(0)} />
