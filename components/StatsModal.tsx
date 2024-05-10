@@ -1,8 +1,8 @@
-import { Fragment, useMemo } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { GameResult } from "@/logic/computeResult";
-import { AxisOptions, Chart, UserSerie } from "react-charts";
+import * as Plot from "@observablehq/plot";
 
 export default function StatsModalComponent({
   results,
@@ -52,7 +52,7 @@ export default function StatsModalComponent({
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl sm:p-6">
+              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-3xl sm:p-6">
                 <div className="absolute right-0 top-0 hidden pr-4 pt-4 sm:block">
                   <button
                     type="button"
@@ -71,9 +71,7 @@ export default function StatsModalComponent({
                     <StatComponent name="Worst" value={worst?.toFixed(0)} />
                   </dl>
 
-                  <div className="h-64 w-full mt-10">
-                    <StatChartComponent results={results} />
-                  </div>
+                  <StatChartComponent results={results} />
                 </div>
               </Dialog.Panel>
             </Transition.Child>
@@ -97,43 +95,52 @@ function StatComponent({ name, value }: { name: string; value?: string }) {
   );
 }
 
-type MyDatum = { date: number; distance: number };
-
 function StatChartComponent({ results }: { results: GameResult[] }) {
-  const data: UserSerie<MyDatum>[] = useMemo(
-    () => [
-      {
-        label: "Distance",
-        data: results.map((r) => ({ date: r.ts, distance: r.distance })),
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const data = results.map((r) => ({
+    Region: r.region_name,
+    Date: new Date(r.ts),
+    Distance: r.distance,
+  }));
+
+  const [width, setWidth] = useState(0);
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      setWidth(entries[0].contentRect.width);
+    });
+    resizeObserver.observe(containerRef.current!);
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (data.length === 0) return;
+    const plot = Plot.plot({
+      height: 400,
+      width,
+      inset: 8,
+      grid: true,
+      color: {
+        legend: true,
       },
-    ],
-    [results]
-  );
-
-  const primaryAxis: AxisOptions<MyDatum> = useMemo(
-    () => ({
-      getValue: (d) => new Date(d.date),
-      scaleType: "localTime",
-    }),
-    []
-  );
-
-  const secondaryAxes: AxisOptions<MyDatum>[] = useMemo(
-    () => [
-      {
-        getValue: (d) => d.distance,
-        scaleType: "linear",
-        elementType: "bubble",
-        showDatumElements: true,
-      },
-    ],
-    []
-  );
-
-  if (results.length === 0) {
-    // The charts library throws various errors if we try to render an empty
-    return null;
-  }
-
-  return <Chart options={{ primaryAxis, secondaryAxes, data }} />;
+      marks: [
+        Plot.ruleY([0]),
+        Plot.axisY({
+          label: "Distance (m)",
+        }),
+        Plot.axisX({
+          label: "Date",
+        }),
+        Plot.dot(data, {
+          x: "Date",
+          y: "Distance",
+          fill: "Region",
+          tip: true,
+        }),
+      ],
+    });
+    containerRef.current?.append(plot);
+    return () => plot.remove();
+  }, [width, data]);
+  return <div ref={containerRef} className="mt-10 w-full" />;
 }
