@@ -189,6 +189,10 @@ export default function MapComponent({
       })
     );
 
+    map
+      .getView()
+      .fit(view.circle.getExtent(), { duration: 0, padding: [10, 10, 10, 10] });
+
     map.addEventListener("click", (event) => {
       if (!(event instanceof MapBrowserEvent)) return;
       const status = statusRef.current;
