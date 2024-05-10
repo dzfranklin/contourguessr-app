@@ -21,6 +21,7 @@ export default function ControlsComponent({
   results: GameResult[];
   reset: () => void;
 }) {
+  const router = useRouter();
   const navigate = useNavigate();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -46,6 +47,7 @@ export default function ControlsComponent({
                   replace: pathname === "/",
                 }
               );
+              router.refresh();
             }}
             regions={regions}
           />
