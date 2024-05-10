@@ -22,6 +22,10 @@ export default function GameComponent() {
   const [results, pushResult] = useResults();
   const [status, setStatus] = useState<GameStatus>("start");
   const challenge = useChallenge();
+  const reset = () => {
+    setGuess(null);
+    setStatus("start");
+  };
 
   return (
     <main className="game">
@@ -33,6 +37,7 @@ export default function GameComponent() {
           setStatus("done");
         }}
         results={results}
+        reset={reset}
       />
 
       <div className="col-span-full row-start-2">
@@ -45,8 +50,7 @@ export default function GameComponent() {
             <button
               className="rounded-md bg-indigo-500 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
               onClick={() => {
-                setGuess(null);
-                setStatus("start");
+                reset();
                 if (pathname === "/") {
                   router.refresh();
                 } else {

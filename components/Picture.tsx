@@ -54,6 +54,10 @@ export default function PictureComponent({
             height={size.height}
             alt=""
             className={classNames("w-full h-full object-contain")}
+            // Don't reuse the node if the src changes because the size will
+            // change immediately but it'll keep the old src as the new one
+            // loads.
+            key={size.src}
           />
         ) : (
           <div className="h-[400px] w-[400px] bg-gray-100"></div>

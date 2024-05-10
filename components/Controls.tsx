@@ -14,12 +14,13 @@ export default function ControlsComponent({
   status,
   onGuess,
   results,
+  reset,
 }: {
   status: GameStatus;
   onGuess: () => void;
   results: GameResult[];
+  reset: () => void;
 }) {
-  const router = useRouter();
   const navigate = useNavigate();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -35,6 +36,7 @@ export default function ControlsComponent({
           <RegionSelectorComponent
             selected={selectedRegion}
             setSelected={(id) => {
+              reset();
               navigate(
                 (p) => ({
                   pathname: "/",
@@ -44,7 +46,6 @@ export default function ControlsComponent({
                   replace: pathname === "/",
                 }
               );
-              router.refresh();
             }}
             regions={regions}
           />
