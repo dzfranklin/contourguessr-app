@@ -19,7 +19,7 @@ import OSBranding from "@/os_brand";
 import "./Map.css";
 import { Feature, MapBrowserEvent, Overlay } from "ol";
 import { GameStatus } from "@/logic/GameStatus";
-import { LineString, Point } from "ol/geom";
+import { Circle, LineString, Point } from "ol/geom";
 import { Vector as VectorSource } from "ol/source";
 import { Vector as VectorLayer } from "ol/layer";
 import Stroke from "ol/style/Stroke";
@@ -189,9 +189,9 @@ export default function MapComponent({
       })
     );
 
-    map
-      .getView()
-      .fit(view.circle.getExtent(), { duration: 0, padding: [10, 10, 10, 10] });
+    map.getView().fit(new Circle(view.center, view.circle.getRadius() * 0.6), {
+      nearest: true,
+    });
 
     map.addEventListener("click", (event) => {
       if (!(event instanceof MapBrowserEvent)) return;
