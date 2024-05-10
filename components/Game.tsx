@@ -69,7 +69,7 @@ export default function GameComponent() {
         status={status}
       />
 
-      <PictureComponent />
+      <PictureComponent showDescription={status === "done"} />
     </main>
   );
 }
