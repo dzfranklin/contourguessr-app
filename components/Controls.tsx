@@ -7,7 +7,7 @@ import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import { useRegions } from "@/hooks/useRegions";
 import { useChallenge } from "@/hooks/useChallenge";
 import toast from "react-hot-toast";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useNavigate } from "@/hooks/useNavigate";
 
 export default function ControlsComponent({
@@ -19,6 +19,7 @@ export default function ControlsComponent({
   onGuess: () => void;
   results: GameResult[];
 }) {
+  const router = useRouter();
   const navigate = useNavigate();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -43,6 +44,7 @@ export default function ControlsComponent({
                   replace: pathname === "/",
                 }
               );
+              router.refresh();
             }}
             regions={regions}
           />
