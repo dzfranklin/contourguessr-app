@@ -1,6 +1,6 @@
 import { useSearchParams } from "next/navigation";
 
-const defaultDFactor = 4;
+const defaultDFactor = 2.5;
 
 export function useDFactor() {
   const searchParams = useSearchParams();
