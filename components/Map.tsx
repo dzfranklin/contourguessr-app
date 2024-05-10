@@ -93,6 +93,7 @@ export default function MapComponent({
     const mapboxAttribution = `© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>`;
     const imageryLayer = new LayerGroup({
       visible: false,
+      opacity: 0.6,
       layers: [
         new TileLayer({
           source: new XYZ({
@@ -145,7 +146,7 @@ export default function MapComponent({
         resolutions: region.map_layer.resolutions,
         resolution: region.map_layer.default_resolution,
       }),
-      layers: [imageryLayer, primaryLayer],
+      layers: [primaryLayer, imageryLayer],
       controls: [
         new Zoom(),
         new Rotate(),
@@ -270,7 +271,6 @@ export default function MapComponent({
       map.addOverlay(marker);
       map.addLayer(layer);
 
-      primaryLayerRef.current?.setOpacity(0.7);
       imageryLayerRef.current?.setVisible(true);
     }
 
@@ -278,7 +278,6 @@ export default function MapComponent({
       if (marker) map.removeOverlay(marker);
       if (layer) map.removeLayer(layer);
       if (status === "done") {
-        primaryLayerRef.current?.setOpacity(1);
         imageryLayerRef.current?.setVisible(false);
       }
     };
