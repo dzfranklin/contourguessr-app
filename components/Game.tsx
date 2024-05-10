@@ -11,11 +11,13 @@ import { useChallenge } from "@/hooks/useChallenge";
 import { useResults } from "@/hooks/useResults";
 import { usePathname, useRouter } from "next/navigation";
 import { useNavigate } from "@/hooks/useNavigate";
+import { useRegions } from "@/hooks/useRegions";
 
 export default function GameComponent() {
   const router = useRouter();
   const navigate = useNavigate();
   const pathname = usePathname();
+  const regions = useRegions();
   const [guess, setGuess] = useState<[number, number] | null>(null);
   const [results, pushResult] = useResults();
   const [status, setStatus] = useState<GameStatus>("start");
@@ -27,7 +29,7 @@ export default function GameComponent() {
         status={status}
         onGuess={() => {
           if (!guess) return;
-          pushResult(computeResult(challenge, guess));
+          pushResult(computeResult(regions, challenge, guess));
           setStatus("done");
         }}
         results={results}
