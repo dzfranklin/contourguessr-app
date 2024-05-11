@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import classNames from "@/classNames";
 import { Toaster } from "react-hot-toast";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body className={classNames(inter.className, "h-full")}>
+        <SpeedInsights />
         <Toaster position="bottom-center" />
         {children}
       </body>

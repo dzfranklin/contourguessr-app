@@ -16,6 +16,7 @@
     "@observablehq/plot": "^0.6.14",
     "@tailwindcss/typography": "^0.5.13",
     "@turf/turf": "7.0.0-alpha.114",
+    "@vercel/speed-insights": "^1.0.10",
     "next": "14.2.1",
     "ol": "^9.1.0",
     "proj4": "^2.11.0",
