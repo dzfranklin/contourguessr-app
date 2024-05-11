@@ -29,6 +29,7 @@ import LayerGroup from "ol/layer/Group";
 import { XYZ } from "ol/source";
 import { useCheatMode } from "@/hooks/useCheatMode";
 import { useChallenge } from "@/hooks/useChallenge";
+import { ToggleSatelliteControl } from "./ToggleSatelliteControl";
 
 // eslint-disable-next-line react-hooks/rules-of-hooks -- not a hook
 useGeographic();
@@ -63,6 +64,7 @@ export default function MapComponent({
   const mapRef = useRef<Map | null>(null);
   const primaryLayerRef = useRef<TileLayer<WMTS> | null>(null);
   const imageryLayerRef = useRef<LayerGroup | null>(null);
+  const toggleSatelliteControl = useRef<ToggleSatelliteControl | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const statusRef = useRef(status);
@@ -150,6 +152,9 @@ export default function MapComponent({
       controls: [
         new Zoom(),
         new Rotate(),
+        (toggleSatelliteControl.current = new ToggleSatelliteControl({
+          imageryLayer,
+        })),
         new Attribution({}),
         new ScaleLine({
           bar: true,
@@ -272,6 +277,7 @@ export default function MapComponent({
       map.addLayer(layer);
 
       imageryLayerRef.current?.setVisible(true);
+      toggleSatelliteControl.current?.enable();
     }
 
     return () => {
@@ -279,6 +285,7 @@ export default function MapComponent({
       if (layer) map.removeLayer(layer);
       if (status === "done") {
         imageryLayerRef.current?.setVisible(false);
+        toggleSatelliteControl.current?.disable();
       }
     };
   }, [status, view, guess]);
