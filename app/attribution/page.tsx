@@ -15,7 +15,7 @@ export default function AttributionPage() {
           <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a>. The
           derivation process is publicly available at{" "}
           <a href="https://github.com/dzfranklin/contourguessr-ingest">
-            github.com/contourguessr-ingest
+            github.com/dzfranklin/contourguessr-ingest
           </a>
           .
         </li>
