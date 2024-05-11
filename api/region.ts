@@ -7,6 +7,7 @@ export interface Region {
     coordinates: [number, number][];
   };
   name: string;
+  country_iso2: string;
   logo_url?: string;
   bbox: {
     min_lng: number;
