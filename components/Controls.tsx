@@ -9,6 +9,7 @@ import { useChallenge } from "@/hooks/useChallenge";
 import toast from "react-hot-toast";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useNavigate } from "@/hooks/useNavigate";
+import Link from "next/link";
 
 export default function ControlsComponent({
   status,
@@ -84,11 +85,14 @@ export default function ControlsComponent({
         )}
       </div>
 
-      <div className="flex justify-between">
-        <div className="text-sm text-gray-500">
+      <div className="flex align-baseline text-sm gap-1">
+        <Link href="/attribution" className="link">
+          Attribution
+        </Link>
+        <div className="text-gray-500">
           Tip: Hold down Alt+Shift and drag to rotate
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="ml-auto text-sm text-gray-500">
           {region.name} near{" "}
           {status === "done"
             ? view.target[1].toFixed(6) + ", " + view.target[0].toFixed(6)
