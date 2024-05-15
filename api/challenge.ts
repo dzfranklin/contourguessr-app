@@ -12,7 +12,6 @@ export interface ChallengeData {
   date_taken?: string;
   link: string;
   src: {
-    preview: PictureSrc;
     regular: PictureSrc;
     large: PictureSrc;
   };
